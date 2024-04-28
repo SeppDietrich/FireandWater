@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Socket.IO chat</title>
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+    </style>
+  </head>
+  <body>
+<h1>Socket.io Room Example</h1>
+    
+    <div>
+        <label for="roomId">Enter Room ID:</label>
+        <input type="text" id="roomId">
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="createRoom()">Create Room</button> <!-- New button to create room -->
+    </div>
+    
+    <div id="messageArea"></div>
+<script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        // Event: Room is full
+        socket.on('roomFull', () => {
+            showMessage('Room is full.');
+        });
+
+        // Event: User successfully joined room
+        socket.on('roomJoined', (roomId) => {
+            showMessage(`Joined room ${roomId}`);
+        });
+
+        // Event: Room is ready (full)
+        socket.on('roomReady', () => {
+            showMessage('Room is ready. You can start!');
+        });
+
+        // Event: User left the room
+        socket.on('userLeft', (userId) => {
+            showMessage(`User ${userId} left the room.`);
+        });
+
+        // Function to join a room
+        function joinRoom() {
+            var roomId = document.getElementById('roomId').value;
+            socket.emit('joinRoom', roomId);
+        }
+
+        // Function to create a room
+        function createRoom() {
+            var roomId = generateRoomId();
+            socket.emit('joinRoom', roomId);
+        }
+
+        // Function to display messages
+        function showMessage(message) {
+            var messageArea = document.getElementById('messageArea');
+            var newMessage = document.createElement('p');
+            newMessage.textContent = message;
+            messageArea.appendChild(newMessage);
+        }
+
+        // Function to generate a random room ID
+        function generateRoomId() {
+            return Math.random().toString(36).substring(2, 8);
+			    
+        }
+    </script>
+  </body>
+</html>
